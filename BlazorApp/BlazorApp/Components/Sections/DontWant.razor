@@ -1,5 +1,4 @@
-﻿
-
+﻿@rendermode InteractiveServer
 <div class="dontWant">
     <div class="container">
        
@@ -10,6 +9,7 @@
 
         <div class="contentSignUp">
             <EditForm FormName="subscribeform" Model="SubscribeForm" OnValidSubmit="OnValidSubmit" method="post" novalidate>
+                <DataAnnotationsValidator />
                 <div class="contentSign">
                     <div class="column">
                         <h6>Sign up for <br> Newsletters</h6>
@@ -42,7 +42,7 @@
                             <div class="input-group">
                                 <InputCheckbox @bind-Value="SubscribeForm.NewsletterCheckbox5" />
                                 <label>Week in Review</label>
-                            </div class="input-group">
+                            </div>
                            
                             <div class="input-group">
                                 <InputCheckbox @bind-Value="SubscribeForm.NewsletterCheckbox6" />
@@ -55,11 +55,11 @@
                     <div class="email">
                         <span id="envelope" class="envelope"><i class="fa fa-envelope"></i></span>
                         <div id="form-email" class="input-group">
-                            <InputText @bind-Value="SubscribeForm.Email" />
+                            <InputText @bind-Value="SubscribeForm.Email" placeholder="       Enter your email"/>
                         </div>
                         <button id="form-submit" type="submit" class="btn-theme">Subscribe</button>
                     </div>
-                    
+                    <ValidationMessage For="@(() => SubscribeForm.Email)" />
                     <div class="terms">
                         <p> <a href="#">*</a> Yes, I agree to the <a href="#">terms</a> and <a href="#">privacy policy</a>.</p>
                         <p><a href="/unsubscribe">Unsubscribe</a></p>
@@ -89,22 +89,40 @@
 
     private async Task OnValidSubmit()
     {
-        StatusMessage = "Thank you for subscribing!";
+        
+        try
+        {
+            var result = await Http.PostAsJsonAsync("https://newsletterprovider-silicone-et.azurewebsites.net/api/Subscribe?code=Y6W8mviJhPk445Xo7X84wDgXldPAqqDF7Lq3X1G0iXUIAzFuqlUUCw==", SubscribeForm);
+            if (result.IsSuccessStatusCode)
+            {
+                StatusMessage = "Thank you for subscribing!";
+            }
+        }
+        catch
+        {
+        
+            StatusMessage = "An error occurred while subscribing. Please try again.";
+
+        }
+
+        SubscribeForm = new SubscribeFormModel();
 
     }
 
     public class SubscribeFormModel
     {
-    [Required]
-    [EmailAddress]
-    [Display(Name = "E-mail address", Prompt = "Your Email")]
-    public bool NewsletterCheckbox1 { get; set; }
-    public bool NewsletterCheckbox2 { get; set; }
-    public bool NewsletterCheckbox3 { get; set; }
-    public bool NewsletterCheckbox4 { get; set; }
-    public bool NewsletterCheckbox5 { get; set; }
-    public bool NewsletterCheckbox6 { get; set; }
-    public string Email { get; set; } = null!;
+        [EmailAddress]
+        [Required(ErrorMessage = "You must provide an email address")]
+        [Display(Name = "E-mail address", Prompt = "Your Email")]
+    
+        public string Email { get; set; } = null!; 
+        public bool NewsletterCheckbox1 { get; set; }
+        public bool NewsletterCheckbox2 { get; set; }
+        public bool NewsletterCheckbox3 { get; set; }
+        public bool NewsletterCheckbox4 { get; set; }
+        public bool NewsletterCheckbox5 { get; set; }
+        public bool NewsletterCheckbox6 { get; set; }
+
     }
 
 }

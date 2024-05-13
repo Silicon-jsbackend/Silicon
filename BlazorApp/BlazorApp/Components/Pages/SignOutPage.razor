@@ -1,0 +1,26 @@
+﻿@page "/signout"
+
+<h3>Signing out...</h3>
+
+@code {
+    [Inject]
+    private NavigationManager NavigationManager { get; set; }
+
+    [Inject]
+    private AuthenticationStateProvider AuthenticationStateProvider { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Logga ut användaren
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity.IsAuthenticated)
+        {
+            await ((Microsoft.AspNetCore.Components.Authorization.TaskAuthenticationStateProvider)AuthenticationStateProvider).SignOutAsync();
+        }
+
+        // Omdirigera till startsidan efter utloggning
+        NavigationManager.NavigateTo("/");
+    }
+}
