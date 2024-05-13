@@ -1,0 +1,340 @@
+﻿.courses {
+    background-color: var(--gray-000);
+
+    .home-course {
+        display: flex;
+        justify-content: start;
+        align-items: center;
+        gap: 1rem;
+
+        .home-and-course {
+            display: flex;
+            justify-content: start;
+            align-items: center;
+            gap: 0.5rem;
+
+            .fa-house {
+                color: var(--gray-600);
+            }
+
+            .home {
+                color: var(--gray-600);
+                margin-bottom: 0;
+            }
+
+            &:hover {
+                .home,
+                .fa-house {
+                    color: var(--black);
+                }
+
+                text-decoration: none;
+                cursor: pointer;
+            }
+        }
+
+        .fa-angles-right {
+            color: var(--gray-600);
+        }
+
+        .courses {
+            color: var(--theme);
+            margin-bottom: 0;
+
+            .dark & {
+                color: var(--gray-400) !important;
+            }
+        }
+    }
+
+    .bord {
+        @include lg {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        /*     flex-direction: column;*/
+
+        @include lg {
+            flex-direction: row;
+            justify-content: space-between;
+        }
+
+        .select {
+            /*flex-direction: row;*/
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 16px;
+            position: relative;
+
+            @include lg {
+                min-width: 300px;
+                display: flex;
+                justify-content: flex-end;
+                align-items: center;
+            }
+
+
+            .selected {
+                padding: 8px 16px;
+                border: 1px solid var(--gray-400);
+                border-radius: 8px;
+                cursor: pointer;
+                width: 100%;
+
+                @include lg {
+                    width: 300px;
+                }
+            }
+
+            .select-options {
+                display: none;
+                position: absolute;
+                top: 100%;
+                /*left: 0;*/
+                right: 0;
+                border: 1px solid var(--gray-400);
+                z-index: 10;
+                width: 100%;
+                background: var(--gray-000);
+
+                @include lg {
+                    width: 300px;
+                }
+
+
+                .option {
+                    padding: 8px 16px;
+                    cursor: pointer;
+
+                    &:hover {
+                        background: var(--gray-100);
+                    }
+                }
+            }
+
+            .input-search-group {
+                margin-right: 2rem;
+                position: relative;
+
+                #searchQuery {
+                    padding: 8px 16px;
+                    width: 100%;
+                    margin-bottom: 1rem;
+                    background: var(--gray-000);
+
+
+                    @include lg {
+                        margin: 0;
+                    }
+                }
+
+                .fa-search {
+                    position: absolute;
+                    right: 1rem;
+                    top: 30%;
+                }
+            }
+        }
+    }
+
+    .grid {
+        display: grid;
+        gap: 2rem;
+        margin-top: 1rem;
+
+        @include md {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        @include xl {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
+        a {
+            text-decoration: none;
+            background-color: var(--white);
+
+            .dark & {
+                background-color: var(--gray-100) !important;
+            }
+
+
+            :hover {
+                background-color: var(--gray-200);
+            }
+
+            .course-card {
+                position: relative;
+
+                .img-card {
+                    width: 100%;
+                }
+
+                .bookmark {
+                    position: absolute;
+                    top: 1rem;
+                    right: 1rem;
+                    background: var(--white);
+                    padding: 0.5rem;
+                    border-radius: 50%;
+                    cursor: pointer;
+                    transition: 0.3s;
+
+                    &:hover {
+                        background: var(--theme);
+                        color: var(--white);
+                    }
+                }
+
+                .bestseller {
+                    position: absolute;
+                    top: 1rem;
+                    left: 1rem;
+                    background: var(--success);
+                    color: var(--white);
+                    padding: 0.5rem;
+                    border-radius: 5px;
+
+                    p {
+                        margin: 0;
+                    }
+                }
+
+                .price {
+                    display: flex;
+
+                    .original-price {
+                        color: var(--theme);
+                        font-weight: 700;
+                        margin-right: 1rem;
+                    }
+
+                    .discounted-price {
+                        color: var(--danger);
+                        margin-right: 1rem;
+                    }
+
+                    .discounted-price-line-through {
+                        color: var(--gray-600);
+                        text-decoration: line-through;
+                    }
+                }
+
+                .line {
+                    border-top: 1px solid var(--gray-400);
+                    margin-left: 1rem;
+                    margin-right: 1rem;
+                }
+
+                &__footer {
+                    display: flex;
+                    gap: 2rem;
+                    padding: 1rem;
+                    color: var(--gray-600);
+
+                    div {
+                        display: flex;
+                        align-items: center;
+                        gap: 0.5rem;
+                    }
+
+                    p {
+                        margin: 0;
+                    }
+                }
+
+                .course-card_body {
+                    padding-left: 1rem;
+                    margin-top: 1rem;
+
+                    .multi-line-title {
+                        min-height: 3rem; // Tillräckligt för att visa två rader text med normal linjehöjd
+                        display: -webkit-box;
+                        -webkit-box-orient: vertical;
+                        overflow: hidden;
+                    }
+                }
+            }
+        }
+    }
+
+    .pagination {
+        display: flex;
+        justify-content: center;
+        margin-top: 50px;
+    }
+
+    .pagination a {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 30px;
+        height: 30px;
+        margin: 0 5px;
+        border-radius: 5px;
+        text-decoration: none;
+        padding: 0;
+
+        @include lg {
+            width: 40px;
+            height: 40px;
+        }
+    }
+
+    .pagination a i {
+        margin: 0;
+    }
+
+    .banner {
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        background-color: var(--theme-opacity);
+        margin-top: 50px;
+        padding: 50px;
+
+        .dark & {
+            background-color: var(--gray-100) !important;
+        }
+
+        .banner-text {
+            div {
+                @include lg {
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: left;
+                    margin-right: 1rem;
+                }
+
+                .skills-text {
+                    flex-direction: row;
+
+                    .h2 {
+                        margin-right: 0.7rem;
+                    }
+                }
+            }
+
+            .blue {
+                color: var(--theme);
+            }
+
+            .btn-theme {
+                margin-top: 1rem;
+                width: fit-content;
+            }
+        }
+
+        .banner-img {
+            display: none;
+
+            @include lg {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+        }
+    }
+}

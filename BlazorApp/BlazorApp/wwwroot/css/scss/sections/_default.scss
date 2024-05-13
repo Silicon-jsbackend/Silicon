@@ -1,0 +1,22 @@
+﻿.default {
+    background-color: var(--gray-000);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+}
+
+.container {
+
+    .div-404 {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+
+        .div-img {
+            padding: 1rem;
+          
+        }
+    }
+}
