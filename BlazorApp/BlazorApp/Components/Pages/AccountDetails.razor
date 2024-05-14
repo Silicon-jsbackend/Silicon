@@ -1,0 +1,271 @@
+﻿@page "/account/details"
+@rendermode InteractiveServer
+@inject UserManager<ApplicationUser> UserManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<div class="container">
+    <section id="account-details">
+        <aside>
+            <div class="profile-info">
+                <div class=" profile-info-img">
+@*                     <img src="/images/uploads/profiles/@user.ProfileImageUrl" alt="@Model.ProfileInfo.FirstName @Model.ProfileInfo.LastName" />
+                    <EditForm FormName="profileimagesform" Model="ProfileImagesForm" OnValidSubmit="OnValidSubmit">
+                        <InputText @bind-Value="ProfileImagesForm.ProfileImageUrl" hidden />
+                        <label class="btn btn-circle btn-circle-sm">
+                            <i class="fa-light fa-refresh"></i>
+                        </label>
+                    </EditForm> *@
+
+                </div>
+
+                <h5>@BasicInfoForm.FirstName @BasicInfoForm.LastName</h5>
+                <p>@BasicInfoForm.Email</p>
+            </div>
+
+            <nav>
+                <NavLink class="btn-theme-s" href="/account/details"><i class="fa-light fa-gear"></i>Account Details</NavLink>
+                <NavLink class="btn-transparent" href="/account/security"><i class="fa-sharp fa-regular fa-lock"></i>Security</NavLink>
+                <NavLink class="btn-transparent" ahref="/account/savedcourses"><i class="fa-light fa-bookmark"></i>Saved Courses</NavLink>
+                <NavLink class="btn-transparent" href="signout"><i class="fa-light fa-arrow-right-from-bracket"></i>Sign Out</NavLink>
+
+
+            </nav>
+        </aside>
+
+        <div class="details">
+            <section class="basic-info">
+                @if (!string.IsNullOrEmpty(@StatusMessage))
+                {
+                    <div class="alert alert-success" role="alert">
+                        @StatusMessage
+                    </div>
+                }
+
+                <EditForm FormName="basicinfoform" Model="BasicInfoForm" OnValidSubmit="OnValidSubmit" method="post" novalidate>
+                    <DataAnnotationsValidator />
+                    <h2>Account Details</h2>
+                    <h5>Basic Info</h5>
+
+                    <div class="content">
+                        <div id="form-firstname" class="input-group">
+                            <label>FirstName</label>
+                            <InputText @bind-Value="BasicInfoForm.FirstName" />
+                            <ValidationMessage For="() => BasicInfoForm.FirstName" />
+
+                        </div>
+
+                        <div id="form-lastname" class="input-group">
+                            <label>LastName</label>
+                            <InputText @bind-Value="BasicInfoForm.LastName" />
+                            <ValidationMessage For="() => BasicInfoForm.LastName" />
+
+                        </div>
+
+                        <div id="form-email" class="input-group">
+                            <label>Email</label>
+                            <InputText @bind-Value="BasicInfoForm.Email" />
+                            <ValidationMessage For="() => BasicInfoForm.LastName" />
+
+                        </div>
+
+                        <div id="form-phone" class="input-group">
+                            <label>PhoneNumber</label>
+                            <InputText @bind-Value="BasicInfoForm.PhoneNumber" />
+                            <ValidationMessage For="() => BasicInfoForm.PhoneNumber" />
+                        </div>
+
+                        <div id="form-bio" class="input-group">
+                            <label>Biography</label>
+                            <InputText @bind-Value="BasicInfoForm.Biography" />
+
+                        </div>
+
+                        <div class="form-buttons">
+                            <button class="btn-gray" type="reset">Cancel</button>
+                            <button class="btn-theme" type="submit">Save changes</button>
+                        </div>
+                    </div>
+                </EditForm>
+            </section>
+            <hr />
+            <section class="address-info">
+               @*  <EditForm FormName="accountdetailsaddressform" Model="AccountDetailsAddressForm" OnValidSubmit="OnValidSubmit" method="post" novalidate>
+                    <h5>Address</h5>
+                    <div class="content">
+                        <div id="form-addressline-1" class="input-group">
+                            <label asp-for="AddressInfoForm!.Addressline_1"></label>
+                            <span asp-validation-for="AddressInfoForm!.Addressline_1"></span>
+                            <input asp-for="AddressInfoForm!.Addressline_1" />
+                        </div>
+
+                        <div id="form-addressline-2" class="input-group">
+                            <label asp-for="AddressInfoForm!.Addressline_2">Adress line 2 <span>(optional)</span></label>
+                            <span asp-validation-for="AddressInfoForm!.Addressline_2"></span>
+                            <input asp-for="AddressInfoForm!.Addressline_2" />
+                        </div>
+
+                        <div id="form-postalcode" class="input-group">
+                            <label asp-for="AddressInfoForm!.PostalCode"></label>
+                            <span asp-validation-for="AddressInfoForm!.PostalCode"></span>
+                            <input asp-for="AddressInfoForm!.PostalCode" />
+                        </div>
+
+                        <div id="form-city" class="input-group">
+                            <label asp-for="AddressInfoForm!.City"></label>
+                            <span asp-validation-for="AddressInfoForm!.City"></span>
+                            <input asp-for="AddressInfoForm!.City" />
+                        </div>
+
+                        <div class="form-buttons">
+                            <button class="btn-gray" type="reset">Cancel</button>
+                            <button class="btn-theme" type="submit">Save changes</button>
+                        </div>
+                    </div>
+                </EditForm> *@
+            </section>
+        </div>
+    </section>
+</div>
+
+@code {
+    [SupplyParameterFromQuery]
+    public string? StatusMessage { get; set; } = "";
+
+    [SupplyParameterFromQuery]
+    public string? ReturnUrl { get; set; }
+
+    [SupplyParameterFromForm]
+    public BasicInfoFormModel BasicInfoForm { get; set; } = new();
+
+    
+    public async Task OnValidSubmit(EditContext editContext)
+    {
+        try
+        {
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+
+            if (user.Identity?.IsAuthenticated == true)
+            {
+                var currentUser = await UserManager.GetUserAsync(user);
+                if (currentUser != null)
+                {
+                    if (currentUser.UserProfile == null)
+                    {
+                        currentUser.UserProfile = new UserProfile(); // Skapa en ny UserProfile om den är null
+                    }
+
+                    // Uppdatera användarens egenskaper
+                    currentUser.UserProfile.FirstName = BasicInfoForm.FirstName;
+                    currentUser.UserProfile.LastName = BasicInfoForm.LastName;
+                    currentUser.UserName = BasicInfoForm.Email;
+                    currentUser.Email = BasicInfoForm.Email;
+                    currentUser.PhoneNumber = BasicInfoForm.PhoneNumber;
+                    currentUser.UserProfile.Biography = BasicInfoForm.Biography;
+
+                    // Utför användaruppdatering
+                    var result = await UserManager.UpdateAsync(currentUser);
+
+                    if (result.Succeeded)
+                    {
+                        StatusMessage = "Account updated successfully.";
+                    }
+                    else
+                    {
+                        StatusMessage = "Error updating account.";
+                    }
+                }
+                else
+                {
+                    StatusMessage = "Unable to load user.";
+                }
+
+            }
+            else
+            {
+                StatusMessage = "User is not authenticated.";
+            }
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = "An error occurred while updating the account.";
+            // Logga eventuella fel
+        }
+    }
+
+
+ 
+    // public async Task OnValidSubmit(EditContext editContext)
+    // {
+    //     try
+    //     {
+    //         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+    //         var user = authState.User;
+
+    //         if (user == null)
+    //         {
+    //             StatusMessage = "Unable to load user.";
+    //             return;
+    //         }
+
+    //         // Uppdatera användarens egenskaper
+    //         user.UserProfile.Id = BasicInfoForm.UserId;
+    //         user.UserProfile.FirstName = BasicInfoForm.FirstName;
+    //         user.UserProfile.LastName = BasicInfoForm.LastName;
+    //         user.UserName = BasicInfoForm.Email;
+    //         user.Email = BasicInfoForm.Email;
+    //         user.UserProfile.Biography = BasicInfoForm.Biography;
+
+    //         // Utför användaruppdatering
+    //         var result = await UserManager.UpdateAsync(user);
+
+    //         if (result.Succeeded)
+    //         {
+    //             StatusMessage = "Account updated successfully.";
+    //         }
+    //         else
+    //         {
+    //             StatusMessage = "Error updating account.";
+    //         }
+    //     }
+    //     catch (Exception ex)
+    //     {
+    //         StatusMessage = "An error occurred while updating the account.";
+    //         // Logga eventuella fel
+    //     }
+    // }
+
+
+    public class BasicInfoFormModel
+    {
+        public string UserId { get; set; } = null!;
+
+        [Display(Name = "First Name", Prompt = "Enter your frist name", Order = 0)]
+        [DataType(DataType.Text)]
+        [Required(ErrorMessage = "First name is required")]
+        public string FirstName { get; set; } = null!;
+
+
+        [Display(Name = "Last Name", Prompt = "Enter your last name", Order = 1)]
+        [Required(ErrorMessage = "Last name is required")]
+        [DataType(DataType.Text)]
+        public string LastName { get; set; } = null!;
+
+        [Display(Name = "Email address", Prompt = "Enter your email", Order = 2)]
+        [DataType(DataType.EmailAddress)]
+        [Required(ErrorMessage = "Email is required")]
+        [RegularExpression(@"^(?=.*[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,})[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$",
+        ErrorMessage = "The email format is not valid.")]
+        public string Email { get; set; } = null!;
+
+        [Display(Name = "Phone (optional)", Prompt = "Enter your phone", Order = 3)]
+        [DataType(DataType.PhoneNumber)]
+        public string? PhoneNumber { get; set; } = null!;
+
+        [Display(Name = "Bio (optional)", Prompt = "Add a short bio...", Order = 4)]
+        [DataType(DataType.MultilineText)]
+        public string? Biography { get; set; }
+    }
+}
+
+
