@@ -1,27 +1,26 @@
 ﻿@page "/signout"
 
-<h3>Signing out...</h3>
 
-@* @code {
-    [Inject]
-    private NavigationManager NavigationManager { get; set; }
+<div class="d-flex justify-content-center align-items-center" style="height: 100vh;">
+    <div class="text-center">
+        <h3>Signing out...</h3>
+        <NavLink class="btn-gray" href="/"><span>Home</span></NavLink>
+    </div>
+</div>
 
+@code {
     [Inject]
-    private AuthenticationStateProvider AuthenticationStateProvider { get; set; }
+    private SignInManager<ApplicationUser> _signInManager { get; set; }
+
+    private async Task SignOutUser()
+    {
+        // Logga ut användaren
+        await _signInManager.SignOutAsync();
+    }
 
     protected override async Task OnInitializedAsync()
     {
-        // Logga ut användaren
-        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-        var user = authState.User;
-
-        if (user.Identity.IsAuthenticated)
-        {
-            await ((Microsoft.AspNetCore.Components.Authorization.TaskAuthenticationStateProvider)AuthenticationStateProvider).SignOutAsync();
-        }
-
-        // Omdirigera till startsidan efter utloggning
-        NavigationManager.NavigateTo("/");
+        await SignOutUser();
     }
+
 }
- *@

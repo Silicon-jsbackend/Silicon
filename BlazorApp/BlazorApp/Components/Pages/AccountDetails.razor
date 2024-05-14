@@ -15,7 +15,7 @@
                             <i class="fa-light fa-refresh"></i>
                         </label>
                     </EditForm> *@
-
+                    <img src="/images/uploads/profiles/avatar.jpg" alt="Profile image">
                 </div>
 
                 <h5>@BasicInfoForm.FirstName @BasicInfoForm.LastName</h5>
@@ -25,8 +25,8 @@
             <nav>
                 <NavLink class="btn-theme-s" href="/account/details"><i class="fa-light fa-gear"></i>Account Details</NavLink>
                 <NavLink class="btn-transparent" href="/account/security"><i class="fa-sharp fa-regular fa-lock"></i>Security</NavLink>
-                <NavLink class="btn-transparent" ahref="/account/savedcourses"><i class="fa-light fa-bookmark"></i>Saved Courses</NavLink>
-                <NavLink class="btn-transparent" href="signout"><i class="fa-light fa-arrow-right-from-bracket"></i>Sign Out</NavLink>
+                <NavLink class="btn-transparent" href="/account/savedcourses"><i class="fa-light fa-bookmark"></i>Saved Courses</NavLink>
+                <NavLink class="btn-transparent" href="/signout"><i class="fa-light fa-arrow-right-from-bracket"></i>Sign Out</NavLink>
 
 
             </nav>
@@ -63,9 +63,8 @@
 
                         <div id="form-email" class="input-group">
                             <label>Email</label>
-                            <InputText @bind-Value="BasicInfoForm.Email" />
+                            <InputText @bind-Value="BasicInfoForm.Email" placeholder="@BasicInfoForm.Email"/>
                             <ValidationMessage For="() => BasicInfoForm.LastName" />
-
                         </div>
 
                         <div id="form-phone" class="input-group">
@@ -77,8 +76,8 @@
                         <div id="form-bio" class="input-group">
                             <label>Biography</label>
                             <InputText @bind-Value="BasicInfoForm.Biography" />
-
                         </div>
+
 
                         <div class="form-buttons">
                             <button class="btn-gray" type="reset">Cancel</button>
@@ -88,32 +87,33 @@
                 </EditForm>
             </section>
             <hr />
+
             <section class="address-info">
-               @*  <EditForm FormName="accountdetailsaddressform" Model="AccountDetailsAddressForm" OnValidSubmit="OnValidSubmit" method="post" novalidate>
+                <EditForm FormName="accountdetailsaddressform" Model="AccountDetailsAddressForm" OnValidSubmit="OnAccountDetailsAddressFormValidSubmit" method="post" novalidate>
                     <h5>Address</h5>
                     <div class="content">
                         <div id="form-addressline-1" class="input-group">
-                            <label asp-for="AddressInfoForm!.Addressline_1"></label>
-                            <span asp-validation-for="AddressInfoForm!.Addressline_1"></span>
-                            <input asp-for="AddressInfoForm!.Addressline_1" />
+                            <label>Address line 1</label>
+                            <InputText @bind-Value="AccountDetailsAddressForm.Addressline_1" />
+                            <ValidationMessage For="() => AccountDetailsAddressForm.Addressline_1" />
                         </div>
 
                         <div id="form-addressline-2" class="input-group">
-                            <label asp-for="AddressInfoForm!.Addressline_2">Adress line 2 <span>(optional)</span></label>
-                            <span asp-validation-for="AddressInfoForm!.Addressline_2"></span>
-                            <input asp-for="AddressInfoForm!.Addressline_2" />
+                            <label>Address line 2 <span>(optional)</span></label>
+                            <InputText @bind-Value="AccountDetailsAddressForm.Addressline_2" />
+                            <ValidationMessage For="() => AccountDetailsAddressForm.Addressline_2" />
                         </div>
 
                         <div id="form-postalcode" class="input-group">
-                            <label asp-for="AddressInfoForm!.PostalCode"></label>
-                            <span asp-validation-for="AddressInfoForm!.PostalCode"></span>
-                            <input asp-for="AddressInfoForm!.PostalCode" />
+                            <label>Postal code</label>
+                            <InputText @bind-Value="AccountDetailsAddressForm.PostalCode" />
+                            <ValidationMessage For="() => AccountDetailsAddressForm.PostalCode" />
                         </div>
 
                         <div id="form-city" class="input-group">
-                            <label asp-for="AddressInfoForm!.City"></label>
-                            <span asp-validation-for="AddressInfoForm!.City"></span>
-                            <input asp-for="AddressInfoForm!.City" />
+                            <label>City</label>
+                            <InputText @bind-Value="AccountDetailsAddressForm.City" />
+                            <ValidationMessage For="() => AccountDetailsAddressForm.City" />
                         </div>
 
                         <div class="form-buttons">
@@ -121,8 +121,9 @@
                             <button class="btn-theme" type="submit">Save changes</button>
                         </div>
                     </div>
-                </EditForm> *@
+                </EditForm>
             </section>
+
         </div>
     </section>
 </div>
@@ -136,6 +137,61 @@
 
     [SupplyParameterFromForm]
     public BasicInfoFormModel BasicInfoForm { get; set; } = new();
+
+    [SupplyParameterFromForm]
+    public AccountDetailsAddressFormModel AccountDetailsAddressForm { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadUserData();
+    }
+
+    private async Task LoadUserData()
+    {
+        try
+        {
+            // Hämta aktuell autentiserad användare
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+
+            if (user.Identity?.IsAuthenticated == true)
+            {
+                // Hämta användarinformation från databasen om användaren är autentiserad
+                var currentUser = await UserManager.GetUserAsync(user);
+                if (currentUser != null)
+                {
+                    // Kontrollera om användarens profil finns
+                    if (currentUser.UserProfile == null)
+                    {
+                        // Om profilen inte finns, skapa en ny profil
+                        currentUser.UserProfile = new UserProfile();
+                    }
+
+                    // Fyll i formuläret med användarens information från databasen
+                    BasicInfoForm.FirstName = currentUser.UserProfile.FirstName;
+                    BasicInfoForm.LastName = currentUser.UserProfile.LastName;
+                    BasicInfoForm.Email = currentUser.Email;
+                    BasicInfoForm.PhoneNumber = currentUser.PhoneNumber;
+                    BasicInfoForm.Biography = currentUser.UserProfile.Biography;
+                }
+                else
+                {
+                    StatusMessage = "Unable to load user.";
+                }
+            }
+            else
+            {
+                StatusMessage = "User is not authenticated.";
+            }
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = "An error occurred while loading user data.";
+            // Logga eventuella fel
+        }
+    }
+
+
 
     
     public async Task OnValidSubmit(EditContext editContext)
@@ -193,47 +249,72 @@
         }
     }
 
+    public async Task OnAccountDetailsAddressFormValidSubmit(EditContext editContext)
+    {
+        try
+        {
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
 
- 
-    // public async Task OnValidSubmit(EditContext editContext)
-    // {
-    //     try
-    //     {
-    //         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-    //         var user = authState.User;
+            if (user.Identity?.IsAuthenticated == true)
+            {
+                var currentUser = await UserManager.GetUserAsync(user);
+                if (currentUser != null)
+                {
+                    // Se till att användarens profil och adressinformation är inställd
+                    if (currentUser.UserProfile == null)
+                    {
+                        currentUser.UserProfile = new UserProfile();
+                    }
 
-    //         if (user == null)
-    //         {
-    //             StatusMessage = "Unable to load user.";
-    //             return;
-    //         }
+                    if (currentUser.UserAddress == null)
+                    {
+                        currentUser.UserAddress = new UserAddress();
+                    }
 
-    //         // Uppdatera användarens egenskaper
-    //         user.UserProfile.Id = BasicInfoForm.UserId;
-    //         user.UserProfile.FirstName = BasicInfoForm.FirstName;
-    //         user.UserProfile.LastName = BasicInfoForm.LastName;
-    //         user.UserName = BasicInfoForm.Email;
-    //         user.Email = BasicInfoForm.Email;
-    //         user.UserProfile.Biography = BasicInfoForm.Biography;
+                    // Uppdatera användarens adressinformation
+                    currentUser.UserAddress.AddressLine_1 = AccountDetailsAddressForm.Addressline_1;
+                    currentUser.UserAddress.AddressLine_2 = AccountDetailsAddressForm.Addressline_2;
+                    currentUser.UserAddress.PostalCode = AccountDetailsAddressForm.PostalCode;
+                    currentUser.UserAddress.City = AccountDetailsAddressForm.City;
 
-    //         // Utför användaruppdatering
-    //         var result = await UserManager.UpdateAsync(user);
+                    // Utför användaruppdatering
+                    var result = await UserManager.UpdateAsync(currentUser);
 
-    //         if (result.Succeeded)
-    //         {
-    //             StatusMessage = "Account updated successfully.";
-    //         }
-    //         else
-    //         {
-    //             StatusMessage = "Error updating account.";
-    //         }
-    //     }
-    //     catch (Exception ex)
-    //     {
-    //         StatusMessage = "An error occurred while updating the account.";
-    //         // Logga eventuella fel
-    //     }
-    // }
+                    if (result.Succeeded)
+                    {
+                        StatusMessage = "Account address updated successfully.";
+                    }
+                    else
+                    {
+                        StatusMessage = "Error updating account address.";
+                    }
+                }
+                else
+                {
+                    StatusMessage = "Unable to load user.";
+                }
+
+            }
+            else
+            {
+                StatusMessage = "User is not authenticated.";
+            }
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = "An error occurred while updating the account address: " + ex.Message;
+            if (ex.InnerException != null)
+            {
+                StatusMessage += " Inner Exception: " + ex.InnerException.Message;
+            }
+            // Logga eventuella fel
+        }
+    }
+
+
+
+
 
 
     public class BasicInfoFormModel
@@ -265,6 +346,30 @@
         [Display(Name = "Bio (optional)", Prompt = "Add a short bio...", Order = 4)]
         [DataType(DataType.MultilineText)]
         public string? Biography { get; set; }
+    }
+
+    public class AccountDetailsAddressFormModel
+    {
+        public string UserId { get; set; } = null!;
+
+        [Display(Name = "Address line 1", Prompt = "Enter your address", Order = 0)]
+        [DataType(DataType.Text)]
+        [Required(ErrorMessage = "Address line 1 is required")]
+        public string Addressline_1 { get; set; } = null!;
+
+        [Display(Name = "Address line 2", Prompt = "Enter your address", Order = 1)]
+        [DataType(DataType.Text)]
+        public string? Addressline_2 { get; set; }
+
+        [Display(Name = "Postal code", Prompt = "Enter your postal code", Order = 2)]
+        [DataType(DataType.PostalCode)]
+        [Required(ErrorMessage = "Postal code is required")]
+        public string PostalCode { get; set; } = null!;
+
+        [Display(Name = "City", Prompt = "Enter your city", Order = 3)]
+        [DataType(DataType.Text)]
+        [Required(ErrorMessage = "City is required")]
+        public string City { get; set; } = null!;
     }
 }
 
