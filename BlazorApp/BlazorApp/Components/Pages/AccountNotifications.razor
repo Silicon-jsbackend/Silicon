@@ -1,0 +1,228 @@
+﻿@page "/account/notifications"
+@rendermode InteractiveServer
+@inject UserManager<ApplicationUser> UserManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<div class="container">
+    <section id="account-details">
+        <aside>
+            <div class="profile-info">
+                <div class=" profile-info-img">
+                    @*                     <img src="/images/uploads/profiles/@user.ProfileImageUrl" alt="@Model.ProfileInfo.FirstName @Model.ProfileInfo.LastName" />
+                    <EditForm FormName="profileimagesform" Model="ProfileImagesForm" OnValidSubmit="OnValidSubmit">
+                    <InputText @bind-Value="ProfileImagesForm.ProfileImageUrl" hidden />
+                    <label class="btn btn-circle btn-circle-sm">
+                    <i class="fa-light fa-refresh"></i>
+                    </label>
+                    </EditForm> *@
+                    <img src="/images/uploads/profiles/avatar.jpg" alt="Profile image">
+                </div>
+
+                <h5>@BasicInfoForm.FirstName @BasicInfoForm.LastName</h5>
+                <p>@BasicInfoForm.Email</p>
+            </div>
+
+            <nav>
+                <NavLink class="btn-transparent" href="/account/details"><i class="fa-light fa-gear"></i>Account Details</NavLink>
+                <NavLink class="btn-transparent" href="/account/security"><i class="fa-sharp fa-regular fa-lock"></i>Security</NavLink>
+                <NavLink class="btn-theme-s" href="/account/notifications"><i class="fa-light fa-bell"></i>Notifications</NavLink>
+                <NavLink class="btn-transparent" href="/account/messages"><i class="fa-light fa-comments"></i>Messages</NavLink>
+                <NavLink class="btn-transparent" href="/account/savedcourses"><i class="fa-light fa-bookmark"></i>Saved Items</NavLink>
+                <NavLink class="btn-transparent" href="/signout"><i class="fa-light fa-arrow-right-from-bracket"></i>Sign Out</NavLink>
+            </nav>
+        </aside>
+
+        <div class="notifications">
+            <section class="basic-info">
+                @if (!string.IsNullOrEmpty(@StatusMessage))
+                {
+                    <div class="alert alert-success" role="alert">
+                        @StatusMessage
+                    </div>
+                }
+
+                <EditForm FormName="notificationsform" Model="NotificationsForm" OnValidSubmit="OnValidSubmit" method="post" novalidate>
+                    <h2>Notifications</h2>
+
+                    <div id="form-email" class="input-group">
+                        <label for="email">Preferred email for notifications</label>
+                        <InputText @bind-Value="NotificationsForm.Email" placeholder="example@gmail.com" />
+                    </div>
+
+                    <div class="check">
+                        <div class="btn-switch">
+                            <label class="switch" for="switch-mode">
+                                <InputCheckbox @bind-Value="NotificationsForm.SubscribeCheckbox" />
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+
+
+                        <div class="btn-switch">
+                        
+                            <label class="switch" for="switch-mode">
+                                <input type="checkbox" id="switch-mode" />
+                                <span class="slider round"></span>
+                            </label>
+                       
+                        </div>
+
+                        <div class="lable">
+                            <label>Subscribe to Newsletter</label>
+                            <p>Nec, posuere non felis duis massa vitae aliquet interdum scelerisque. Neque ullamcorper.</p>
+                        </div>
+
+                    </div>
+
+                    <div class="check">
+                        <div class="btn-switch">
+                            <InputCheckbox @bind-Value="NotificationsForm.DarkMode" />
+                        </div>
+                        <div class="lable">
+                            <label>Use Dark Mode Theme in Application</label>
+                            <p>Nec, posuere non felis duis massa vitae aliquet interdum scelerisque. Neque ullamcorper.</p>
+                        </div>
+                    </div>
+                    <div class="button">
+                        <button class="btn-gray" type="reset">Cancel</button>
+                        <button class="btn-theme" type="submit">Save changes</button>
+                    </div>
+                </EditForm>
+
+
+
+            </section>
+        </div>
+    </section>
+</div>
+
+
+@code {
+    [SupplyParameterFromQuery]
+    public string? StatusMessage { get; set; } = "";
+
+    [SupplyParameterFromQuery]
+    public string? ReturnUrl { get; set; }
+
+    [SupplyParameterFromForm]
+    public NotificationsFormModel NotificationsForm { get; set; } = new();
+
+    [SupplyParameterFromForm]
+    public BasicInfoFormModel BasicInfoForm { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadUserData();
+    }
+
+    private async Task LoadUserData()
+    {
+        try
+        {
+            // Hämta aktuell autentiserad användare
+            var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+            var user = authState.User;
+
+            if (user.Identity?.IsAuthenticated == true)
+            {
+                // Hämta användarinformation från databasen om användaren är autentiserad
+                var currentUser = await UserManager.GetUserAsync(user);
+                if (currentUser != null)
+                {
+                    // Kontrollera om användarens profil finns
+                    if (currentUser.UserProfile == null)
+                    {
+                        // Om profilen inte finns, skapa en ny profil
+                        currentUser.UserProfile = new UserProfile();
+                    }
+
+                    // Fyll i formuläret med användarens information från databasen
+                    BasicInfoForm.FirstName = currentUser.UserProfile.FirstName;
+                    BasicInfoForm.LastName = currentUser.UserProfile.LastName;
+                    BasicInfoForm.Email = currentUser.Email;
+ 
+                }
+                else
+                {
+                    StatusMessage = "Unable to load user.";
+                }
+            }
+            else
+            {
+                StatusMessage = "User is not authenticated.";
+            }
+        }
+        catch (Exception ex)
+        {
+            StatusMessage = "An error occurred while loading user data.";
+            // Logga eventuella fel
+        }
+    }
+
+    private async Task OnValidSubmit()
+    {
+
+        try
+        {
+            var result = await Http.PostAsJsonAsync("https://newsletterprovider-silicone-et.azurewebsites.net/api/Subscribe?code=Y6W8mviJhPk445Xo7X84wDgXldPAqqDF7Lq3X1G0iXUIAzFuqlUUCw==", NotificationsForm);
+            if (result.IsSuccessStatusCode)
+            {
+                StatusMessage = "Thank you for subscribing!";
+            }
+        }
+        catch
+        {
+
+            StatusMessage = "An error occurred while subscribing. Please try again.";
+
+        }
+
+        NotificationsForm = new NotificationsFormModel();
+
+    }
+
+
+    public class NotificationsFormModel
+    {
+        [EmailAddress]
+        [Required(ErrorMessage = "You must provide an email address")]
+        [Display(Name = "E-mail address", Prompt = "Your Email")]
+        public string Email { get; set; } = null!;
+
+        public bool SubscribeCheckbox { get; set; } = true;
+        public bool DarkMode { get; set; } = false;
+    }
+
+    public class BasicInfoFormModel
+    {
+        public string UserId { get; set; } = null!;
+
+        [Display(Name = "First Name", Prompt = "Enter your frist name", Order = 0)]
+        [DataType(DataType.Text)]
+        [Required(ErrorMessage = "First name is required")]
+        public string FirstName { get; set; } = null!;
+
+
+        [Display(Name = "Last Name", Prompt = "Enter your last name", Order = 1)]
+        [Required(ErrorMessage = "Last name is required")]
+        [DataType(DataType.Text)]
+        public string LastName { get; set; } = null!;
+
+        [Display(Name = "Email address", Prompt = "Enter your email", Order = 2)]
+        [DataType(DataType.EmailAddress)]
+        [Required(ErrorMessage = "Email is required")]
+        [RegularExpression(@"^(?=.*[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,})[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$",
+        ErrorMessage = "The email format is not valid.")]
+        public string Email { get; set; } = null!;
+
+        [Display(Name = "Phone (optional)", Prompt = "Enter your phone", Order = 3)]
+        [DataType(DataType.PhoneNumber)]
+        public string? PhoneNumber { get; set; } = null!;
+
+        [Display(Name = "Bio (optional)", Prompt = "Add a short bio...", Order = 4)]
+        [DataType(DataType.MultilineText)]
+        public string? Biography { get; set; }
+    }
+}
+
+
