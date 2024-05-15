@@ -1,4 +1,5 @@
 ﻿@page "/Account/Register"
+@using BlazorApp.Filters
 @rendermode InteractiveServer
 
 <PageTitle>Sign up</PageTitle>
@@ -13,7 +14,7 @@
 
             @if (!string.IsNullOrEmpty(@StatusMessage))
             {
-                <div class="alert alert-success" role="alert">
+                <div class="alert alert-danger" role="alert">
                     @StatusMessage
                 </div>
             }
@@ -90,7 +91,7 @@
                 },
                 UserName = SignUpForm.Email,
                 Email = SignUpForm.Email,
-                EmailConfirmed = true // Markera e-postadressen som bekräftad
+                EmailConfirmed = true // Mark the email address as confirmed, can be removed in the program instead
             };
 
         try
@@ -271,8 +272,8 @@
         [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
         public string ConfirmPassword { get; set; } = null!;
 
+        [CheckBoxRequired]
         [Display(Name = "I agree to the Terms and Conditions", Order = 5)]
-    
         public bool TermsAndConditions { get; set; } = false;
     }
 }
