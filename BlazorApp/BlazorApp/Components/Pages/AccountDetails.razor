@@ -8,12 +8,12 @@
         <aside>
             <div class="profile-info">
                 <div class=" profile-info-img">
-@*                     <img src="/images/uploads/profiles/@user.ProfileImageUrl" alt="@Model.ProfileInfo.FirstName @Model.ProfileInfo.LastName" />
+                    @*                     <img src="/images/uploads/profiles/@user.ProfileImageUrl" alt="@Model.ProfileInfo.FirstName @Model.ProfileInfo.LastName" />
                     <EditForm FormName="profileimagesform" Model="ProfileImagesForm" OnValidSubmit="OnValidSubmit">
-                        <InputText @bind-Value="ProfileImagesForm.ProfileImageUrl" hidden />
-                        <label class="btn btn-circle btn-circle-sm">
-                            <i class="fa-light fa-refresh"></i>
-                        </label>
+                    <InputText @bind-Value="ProfileImagesForm.ProfileImageUrl" hidden />
+                    <label class="btn btn-circle btn-circle-sm">
+                    <i class="fa-light fa-refresh"></i>
+                    </label>
                     </EditForm> *@
                     <img src="/images/uploads/profiles/avatar.jpg" alt="Profile image">
                 </div>
@@ -63,7 +63,7 @@
 
                         <div id="form-email" class="input-group">
                             <label>Email</label>
-                            <InputText @bind-Value="BasicInfoForm.Email" placeholder="@BasicInfoForm.Email"/>
+                            <InputText @bind-Value="BasicInfoForm.Email" placeholder="@BasicInfoForm.Email" />
                             <ValidationMessage For="() => BasicInfoForm.LastName" />
                         </div>
 
@@ -127,6 +127,7 @@
         </div>
     </section>
 </div>
+
 
 @code {
     [SupplyParameterFromQuery]
@@ -193,7 +194,7 @@
 
 
 
-    
+
     public async Task OnValidSubmit(EditContext editContext)
     {
         try

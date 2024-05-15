@@ -9,4 +9,5 @@ public class ApplicationUser : IdentityUser
     public UserProfile? UserProfile { get; set; }
     public string? UserAddressId { get; set; }
     public UserAddress? UserAddress { get; set; }
+
 }
