@@ -50,22 +50,13 @@
                     </div>
 
                     <div class="check">
-                        <div class="btn-switch">
-                            <label class="switch" for="switch-mode">
-                                <InputCheckbox @bind-Value="NotificationsForm.SubscribeCheckbox" />
-                                <span class="slider round"></span>
-                            </label>
-                        </div>
 
-
-                        <div class="btn-switch">
-                        
-                            <label class="switch" for="switch-mode">
-                                <input type="checkbox" id="switch-mode" />
-                                <span class="slider round"></span>
-                            </label>
-                       
-                        </div>
+                            <div class="btn-switch">
+                                <label class="switch" for="switch-mode-email">
+                                    <InputCheckbox @bind-Value="NotificationsForm.SubscribeCheckbox" id="switch-mode-email" />
+                                    <span class="slider round"></span>
+                                </label>
+                            </div>
 
                         <div class="lable">
                             <label>Subscribe to Newsletter</label>
@@ -76,7 +67,10 @@
 
                     <div class="check">
                         <div class="btn-switch">
-                            <InputCheckbox @bind-Value="NotificationsForm.DarkMode" />
+                            <label class="switch" for="switch-mode-dark">
+                                <InputCheckbox @bind-Value="NotificationsForm.DarkMode" id="switch-mode-dark" />
+                                <span class="slider round"></span>
+                            </label>
                         </div>
                         <div class="lable">
                             <label>Use Dark Mode Theme in Application</label>
@@ -159,27 +153,54 @@
         }
     }
 
+    // private async Task OnValidSubmit()
+    // {
+
+    //     try
+    //     {
+    //         var result = await Http.PostAsJsonAsync("https://newsletterprovider-silicone-et.azurewebsites.net/api/Subscribe?code=Y6W8mviJhPk445Xo7X84wDgXldPAqqDF7Lq3X1G0iXUIAzFuqlUUCw==", NotificationsForm);
+    //         if (result.IsSuccessStatusCode)
+    //         {
+    //             StatusMessage = "Thank you for subscribing!";
+    //         }
+    //     }
+    //     catch
+    //     {
+
+    //         StatusMessage = "An error occurred while subscribing. Please try again.";
+
+    //     }
+
+    //     NotificationsForm = new NotificationsFormModel();
+
+    // }
+
     private async Task OnValidSubmit()
     {
-
         try
         {
-            var result = await Http.PostAsJsonAsync("https://newsletterprovider-silicone-et.azurewebsites.net/api/Subscribe?code=Y6W8mviJhPk445Xo7X84wDgXldPAqqDF7Lq3X1G0iXUIAzFuqlUUCw==", NotificationsForm);
+            string endpoint = NotificationsForm.SubscribeCheckbox ?
+                              "https://newsletterprovider-silicone-et.azurewebsites.net/api/Subscribe?code=Y6W8mviJhPk445Xo7X84wDgXldPAqqDF7Lq3X1G0iXUIAzFuqlUUCw==" :
+                              "https://newsletterprovider-silicone-et.azurewebsites.net/api/Unsubscribe?code=Y3M-nsjsK1GK2WZbHmNB-l5K7Kl-zlJ06946IDYBaFXCAzFu2I5Inw==";
+
+            var result = await Http.PostAsJsonAsync(endpoint, NotificationsForm);
             if (result.IsSuccessStatusCode)
             {
-                StatusMessage = "Thank you for subscribing!";
+                StatusMessage = NotificationsForm.SubscribeCheckbox ? "Thank you for subscribing!" : "You have unsubscribed successfully!";
+            }
+            else
+            {
+                StatusMessage = "An error occurred. Please try again.";
             }
         }
         catch
         {
-
             StatusMessage = "An error occurred while subscribing. Please try again.";
-
         }
 
         NotificationsForm = new NotificationsFormModel();
-
     }
+
 
 
     public class NotificationsFormModel
