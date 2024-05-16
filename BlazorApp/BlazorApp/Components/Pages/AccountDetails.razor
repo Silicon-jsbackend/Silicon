@@ -1,4 +1,8 @@
-﻿@page "/account/details"
+﻿@using Microsoft.EntityFrameworkCore;
+@using System.Security.Claims;
+@using Microsoft.AspNetCore.Components.Authorization;
+
+@page "/account/details"
 @rendermode InteractiveServer
 @inject UserManager<ApplicationUser> UserManager
 @inject AuthenticationStateProvider AuthenticationStateProvider
@@ -151,29 +155,45 @@
     {
         try
         {
-            // Hämta aktuell autentiserad användare
             var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
             var user = authState.User;
 
             if (user.Identity?.IsAuthenticated == true)
             {
-                // Hämta användarinformation från databasen om användaren är autentiserad
                 var currentUser = await UserManager.GetUserAsync(user);
                 if (currentUser != null)
                 {
-                    // Kontrollera om användarens profil finns
-                    if (currentUser.UserProfile == null)
-                    {
-                        // Om profilen inte finns, skapa en ny profil
-                        currentUser.UserProfile = new UserProfile();
-                    }
+                    var userId = user.FindFirst(c => c.Type == ClaimTypes.NameIdentifier)?.Value;
 
-                    // Fyll i formuläret med användarens information från databasen
-                    BasicInfoForm.FirstName = currentUser.UserProfile.FirstName;
-                    BasicInfoForm.LastName = currentUser.UserProfile.LastName;
-                    BasicInfoForm.Email = currentUser.Email;
-                    BasicInfoForm.PhoneNumber = currentUser.PhoneNumber;
-                    BasicInfoForm.Biography = currentUser.UserProfile.Biography;
+                    if (userId == currentUser.Id)
+                    {
+                        currentUser = await UserManager.Users
+                            .Include(u => u.UserProfile)
+                            .Include(u => u.UserAddress)
+                            .FirstOrDefaultAsync(u => u.Id == userId);
+
+                        if (currentUser.UserProfile != null)
+                        {
+                            BasicInfoForm.FirstName = currentUser.UserProfile.FirstName;
+                            BasicInfoForm.LastName = currentUser.UserProfile.LastName;
+                            BasicInfoForm.Biography = currentUser.UserProfile.Biography;
+                        }
+
+                        BasicInfoForm.Email = currentUser.Email;
+                        BasicInfoForm.PhoneNumber = currentUser.PhoneNumber;
+
+                        if (currentUser.UserAddress != null)
+                        {
+                            AccountDetailsAddressForm.Addressline_1 = currentUser.UserAddress.AddressLine_1;
+                            AccountDetailsAddressForm.Addressline_2 = currentUser.UserAddress.AddressLine_2;
+                            AccountDetailsAddressForm.PostalCode = currentUser.UserAddress.PostalCode;
+                            AccountDetailsAddressForm.City = currentUser.UserAddress.City;
+                        }
+                    }
+                    else
+                    {
+                        StatusMessage = "User id does not match current user.";
+                    }
                 }
                 else
                 {
@@ -188,9 +208,55 @@
         catch (Exception ex)
         {
             StatusMessage = "An error occurred while loading user data.";
-            // Logga eventuella fel
         }
     }
+
+
+
+    // private async Task LoadUserData()
+    // {
+    //     try
+    //     {
+    //         // Hämta aktuell autentiserad användare
+    //         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+    //         var user = authState.User;
+
+    //         if (user.Identity?.IsAuthenticated == true)
+    //         {
+    //             // Hämta användarinformation från databasen om användaren är autentiserad
+    //             var currentUser = await UserManager.GetUserAsync(user);
+    //             if (currentUser != null)
+    //             {
+    //                 // Kontrollera om användarens profil finns
+    //                 if (currentUser.UserProfile == null)
+    //                 {
+    //                     // Om profilen inte finns, skapa en ny profil
+    //                     currentUser.UserProfile = new UserProfile();
+    //                 }
+
+    //                 // Fyll i formuläret med användarens information från databasen
+    //                 BasicInfoForm.FirstName = currentUser.UserProfile.FirstName;
+    //                 BasicInfoForm.LastName = currentUser.UserProfile.LastName;
+    //                 BasicInfoForm.Email = currentUser.Email;
+    //                 BasicInfoForm.PhoneNumber = currentUser.PhoneNumber;
+    //                 BasicInfoForm.Biography = currentUser.UserProfile.Biography;
+    //             }
+    //             else
+    //             {
+    //                 StatusMessage = "Unable to load user.";
+    //             }
+    //         }
+    //         else
+    //         {
+    //             StatusMessage = "User is not authenticated.";
+    //         }
+    //     }
+    //     catch (Exception ex)
+    //     {
+    //         StatusMessage = "An error occurred while loading user data.";
+    //         // Logga eventuella fel
+    //     }
+    // }
 
 
 
@@ -209,10 +275,9 @@
                 {
                     if (currentUser.UserProfile == null)
                     {
-                        currentUser.UserProfile = new UserProfile(); // Skapa en ny UserProfile om den är null
+                        currentUser.UserProfile = new UserProfile();
                     }
 
-                    // Uppdatera användarens egenskaper
                     currentUser.UserProfile.FirstName = BasicInfoForm.FirstName;
                     currentUser.UserProfile.LastName = BasicInfoForm.LastName;
                     currentUser.UserName = BasicInfoForm.Email;
@@ -220,7 +285,6 @@
                     currentUser.PhoneNumber = BasicInfoForm.PhoneNumber;
                     currentUser.UserProfile.Biography = BasicInfoForm.Biography;
 
-                    // Utför användaruppdatering
                     var result = await UserManager.UpdateAsync(currentUser);
 
                     if (result.Succeeded)
@@ -246,7 +310,7 @@
         catch (Exception ex)
         {
             StatusMessage = "An error occurred while updating the account.";
-            // Logga eventuella fel
+
         }
     }
 
@@ -262,7 +326,6 @@
                 var currentUser = await UserManager.GetUserAsync(user);
                 if (currentUser != null)
                 {
-                    // Se till att användarens profil och adressinformation är inställd
                     if (currentUser.UserProfile == null)
                     {
                         currentUser.UserProfile = new UserProfile();
@@ -273,13 +336,11 @@
                         currentUser.UserAddress = new UserAddress();
                     }
 
-                    // Uppdatera användarens adressinformation
                     currentUser.UserAddress.AddressLine_1 = AccountDetailsAddressForm.Addressline_1;
                     currentUser.UserAddress.AddressLine_2 = AccountDetailsAddressForm.Addressline_2;
                     currentUser.UserAddress.PostalCode = AccountDetailsAddressForm.PostalCode;
                     currentUser.UserAddress.City = AccountDetailsAddressForm.City;
 
-                    // Utför användaruppdatering
                     var result = await UserManager.UpdateAsync(currentUser);
 
                     if (result.Succeeded)
@@ -309,7 +370,6 @@
             {
                 StatusMessage += " Inner Exception: " + ex.InnerException.Message;
             }
-            // Logga eventuella fel
         }
     }
 

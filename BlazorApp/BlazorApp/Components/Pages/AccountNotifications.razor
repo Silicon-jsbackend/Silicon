@@ -183,6 +183,7 @@
                               "https://newsletterprovider-silicone-et.azurewebsites.net/api/Subscribe?code=Y6W8mviJhPk445Xo7X84wDgXldPAqqDF7Lq3X1G0iXUIAzFuqlUUCw==" :
                               "https://newsletterprovider-silicone-et.azurewebsites.net/api/Unsubscribe?code=Y3M-nsjsK1GK2WZbHmNB-l5K7Kl-zlJ06946IDYBaFXCAzFu2I5Inw==";
 
+            //change the endpoint to the "SUBSCRIBE_URI", 3:20
             var result = await Http.PostAsJsonAsync(endpoint, NotificationsForm);
             if (result.IsSuccessStatusCode)
             {
