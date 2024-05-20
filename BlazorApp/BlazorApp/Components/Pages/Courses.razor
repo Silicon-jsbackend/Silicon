@@ -1,4 +1,6 @@
 ﻿@page "/courses"
+@using System.Text.Json
+@using System.Text.Json.Serialization
 @attribute [StreamRendering]
 @attribute [Authorize]
 
@@ -176,33 +178,73 @@
 
 
 @code {
-    private CourseModel[]? courses;
+    private List<CourseModel>? courses;
+
     protected override async Task OnInitializedAsync()
     {
-       try
+        var query = new GraphQLQuery { query = "{ getCourses { id title price discountPrice hours isBestseller likesInNumbers likesInProcent author imageName category { id categoryName } } }" };
+        var response = await Http.PostAsJsonAsync("http://localhost:7118/api/graphql", query);
+
+        if (response.IsSuccessStatusCode)
         {
-            await Task.Delay(500);
-            courses = await Http.GetFromJsonAsync<CourseModel[]>("https://localhost:7026/api/Courses");
-        }
-        catch (Exception)
-        {
-            // ViewData["Status"] = "ConnectionFailed";
+            var result = await response.Content.ReadFromJsonAsync<DynamicGraphQLResponse>();
+            courses = result?.Data.GetProperty("getCourses").EnumerateArray()
+            .Select(course => new CourseModel
+
+                    {
+                        Id = course.GetProperty("id").GetString()!,
+                        Title = course.GetProperty("title").GetString()!,
+                        Price = course.GetProperty("price").GetDecimal(),
+                        DiscountPrice = course.GetProperty("discountPrice").GetDecimal(),
+                        Hours = course.GetProperty("hours").GetDecimal(),
+                        IsBestseller = course.GetProperty("isBestseller").GetBoolean(),
+                        LikesInNumbers = course.GetProperty("likesInNumbers").GetDecimal(),
+                        LikesInProcent = course.GetProperty("likesInProcent").GetDecimal(),
+                        Author = course.GetProperty("author").GetString(),
+                        ImageName = course.GetProperty("imageName").GetString(),
+                        CategoryId = course.GetProperty("category").GetProperty("id").GetString(),
+                        Category = new CourseModel.CategoryModel
+                        {
+                            Id = course.GetProperty("category").GetProperty("id").GetString()!,
+                            CategoryName = course.GetProperty("category").GetProperty("categoryName").GetString()!
+                        }
+                    })
+            .ToList();
+            
         }
     }
 
     public class CourseModel
     {
-        public int Id { get; set; }
+        public string Id { get; set; } = null!;
         public string Title { get; set; } = null!;
         public decimal Price { get; set; }
         public decimal DiscountPrice { get; set; }
-        public int Hours { get; set; }
+        public decimal Hours { get; set; }
         public bool IsBestseller { get; set; }
         public decimal LikesInNumbers { get; set; }
         public decimal LikesInProcent { get; set; }
         public string? Author { get; set; }
         public string? ImageName { get; set; }
-        public string Category { get; set; } = null!;
+
+        public string? CategoryId { get; set; }
+        public virtual CategoryModel? Category { get; set; }
+
+        public class CategoryModel
+        {
+            public string Id { get; set; } = null!;
+            public string CategoryName { get; set; } = null!;
+        }
     }
 
+    public class GraphQLQuery
+    {
+        public string query { get; set; } = null!;
+    }
+
+    public class DynamicGraphQLResponse
+    {
+        [JsonPropertyName("data")]
+        public JsonElement Data { get; set; }
+    }
 }
