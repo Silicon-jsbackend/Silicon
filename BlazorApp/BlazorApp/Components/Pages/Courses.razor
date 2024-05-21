@@ -8,14 +8,14 @@
 
 <section class="courses">
     <div class="container">
- <div class="home-course">
-        <a class="home-and-course">
-        <i class="fa-light fa-house"></i>
-        <p class="home">Home</p>
-        </a>
+        <div class="home-course">
+            <a class="home-and-course">
+            <i class="fa-light fa-house"></i>
+            <p class="home">Home</p>
+            </a>
 
-        <i class="fa-light fa-angles-right"></i>
-        <p class="courses">Courses</p>
+            <i class="fa-light fa-angles-right"></i>
+            <p class="courses">Courses</p>
         </div>
 
         <div class="bord">
@@ -65,7 +65,8 @@
 
         @if (courses == null)
         {
-            <p><em>Loading...</em></p>
+            <p><em>Courses loading...</em></p>
+            <span class="loader"></span>
         }
         else
         {
@@ -75,7 +76,7 @@
                 @foreach (var course in courses)
                 {
                     @* <NavLink asp-action="Details" asp-controller="Courses" asp-route-id="@course.Id"> *@
-                    <NavLink href="@($"courses/{course.Id}")">
+                    <NavLink href="@($"course/{course.Id}")">
 
                         <div class="course-card">
                             <div class="course-card_img">
@@ -183,10 +184,11 @@
     protected override async Task OnInitializedAsync()
     {
         var query = new GraphQLQuery { query = "{ getCourses { id title price discountPrice hours isBestseller likesInNumbers likesInProcent author imageName category { id categoryName } } }" };
-        var response = await Http.PostAsJsonAsync("http://localhost:7118/api/graphql", query);
+        var response = await Http.PostAsJsonAsync("https://courseprovider-silicon-et.azurewebsites.net/api/graphql?code=HwR4hOUedeBAkP2RuBebzjkPFIezqH_ZfFQZ85Vbr9pLAzFuGFDHGg%3D%3D", query);
+    
 
         if (response.IsSuccessStatusCode)
-        {
+        {  
             var result = await response.Content.ReadFromJsonAsync<DynamicGraphQLResponse>();
             courses = result?.Data.GetProperty("getCourses").EnumerateArray()
             .Select(course => new CourseModel

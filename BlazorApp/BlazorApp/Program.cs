@@ -35,6 +35,11 @@ builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.Requ
     .AddSignInManager()
     .AddDefaultTokenProviders();
 
+// add to make the course details page work
+//builder.Services.Configure<RouteOptions>(options =>
+//{
+//    options.ConstraintMap["string"] = typeof(string);
+//});
 
 
 

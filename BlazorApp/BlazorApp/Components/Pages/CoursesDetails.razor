@@ -1,5 +1,6 @@
-﻿@page "/courses/{id:int}"
-@* @inject HttpClient HttpClient *@
+﻿@page "/course/{id:int}"
+@using System.Text.Json.Serialization
+@using System.Text.Json
 @attribute [StreamRendering]
 
 @if (course == null)
@@ -8,8 +9,6 @@
 }
 else
 {
-
-
     <section class="singel-courses">
         <section class="singel-courses-box">
             <img src="images/courses/@course.ImageName" alt="Computer Image">
@@ -73,7 +72,7 @@ else
                         </div>
                         <div class="author-info">
                             <p class="created">Created by</p>
-                            <p class="author-name">Albert Flores</p>
+                            <p class="author-name">@course.Author</p>
                         </div>
                     </div>
                 </div>
@@ -136,11 +135,10 @@ else
                 </div>
 
                 <div class="price">
-                    <h1>$28.99</h1>
-                    <h3 class="discounted-price-line-through">$49.00</h3>
+                    <h1>$@course.Price</h1>
+                    <h3 class="discounted-price-line-through">$@course.DiscountPrice</h3>
                 </div>
                 <SingleCourseButton />
-
             </div>
         </section>
 
@@ -218,34 +216,33 @@ else
                             </div>
                         </div>
                         <div class="content-text">
-                            <h3>C# and .NET from beginner to advanced</h3>
-                            <p>Quis risus quisque diam diam. Volutpat neque eget eu faucibus sed urna fermentum risus. Est, mauris morbi nibh massa.</p>
+                            <h3>Deploying your project from scratch</h3>
+                            <p>Elit habitasse tempor, egestas nibh sit est vitae mauris scelerisque. Egestas feugiat lorem eu neque suspendisse ullamcorper scelerisque aliquam mauris.</p>
                         </div>
                     </div>
-                </div>
 
-                <div class="box-four">
-                </div>
-
-            </div>
-        </section>
-
-        <section class="albert-flores">
-            <div class="container">
-                <div class="albert-flores-img">
-                    <img class="author-image" src="images/author-image-square.png" alt="Albert Flores Image">
-                </div>
-
-                <div class="albert-flores-text">
-                    <div class="wave">
-                        <img src="images/pattern.svg" alt="">
+                    <div class="content">
+                        <div class="circle-gray">
+                            <div class="circle-wite">
+                                <p>7</p>
+                            </div>
+                        </div>
+                        <div class="content-text">
+                            <h3>Working with databases</h3>
+                            <p>Ut volutpat est sed lorem feugiat id scelerisque feugiat. Nibh elit, sed et pretium, pharetra nisl. Mauris ut mauris vel tortor, sed elementum.</p>
+                        </div>
                     </div>
-                    <h5>Learn from the best</h5>
-                    <h2>Albert Flores</h2>
-                    <p>Dolor ipsum amet cursus quisque porta adipiscing. Lorem convallis malesuada sed maecenas. Ac dui at vitae mauris cursus in nullam porta sem. Quis pellentesque elementum ac bibendum. Nunc aliquam in tortor facilisis. Vulputate eget risus, metus phasellus. Pellentesque faucibus amet, eleifend diam quam condimentum convallis ultricies placerat. Duis habitasse placerat amet, odio pellentesque rhoncus, feugiat at. Eget pellentesque tristique felis magna fringilla.</p>
-                    <div class="button">
-                        <button class="btn-theme danger"><i class="fa-brands fa-youtube"></i>240k subscribers</button>
-                        <button class="btn-theme"><i class="fa-brands fa-square-facebook"></i>180k followers</button>
+
+                    <div class="content">
+                        <div class="circle-gray">
+                            <div class="circle-wite">
+                                <p>8</p>
+                            </div>
+                        </div>
+                        <div class="content-text">
+                            <h3>Building your first project</h3>
+                            <p>Arcu purus luctus nisi volutpat tincidunt. Aliquet dui ut magna ut faucibus. Nam sit interdum malesuada proin habitant. Interdum cras quam tristique egestas feugiat adipiscing.</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -254,44 +251,76 @@ else
 }
 
 @code {
-    private CourseModel course;
-
     [Parameter]
-    public int Id { get; set; }
+    public string Id { get; set; } = null!;
 
-    [Inject]
-    private HttpClient HttpClient { get; set; }
+    private CourseModel? course;
 
     protected override async Task OnInitializedAsync()
     {
-        await LoadCourseAsync(Id);
-    }
+        var query = new GraphQLQuery { query = $"{{ getCourseById(id: {Id}) {{ id title price discountPrice hours isBestseller likesInNumbers likesInProcent author imageName category {{ id categoryName }} }} }}" };
+        var response = await Http.PostAsJsonAsync("https://courseprovider-silicon-et.azurewebsites.net/api/graphql?code=HwR4hOUedeBAkP2RuBebzjkPFIezqH_ZfFQZ85Vbr9pLAzFuGFDHGg%3D%3D", query);
 
-    private async Task LoadCourseAsync(int id)
-    {
-        try
+        if (response.IsSuccessStatusCode)
         {
-            course = await HttpClient.GetFromJsonAsync<CourseModel>($"https://localhost:7026/api/Courses/{id}");
-        }
-        catch (Exception ex)
-        {
-            // Hantera fel här, t.ex. logga eller visa ett meddelande till användaren
-            Console.WriteLine($"Error: {ex.Message}");
+            var result = await response.Content.ReadFromJsonAsync<DynamicGraphQLResponse>();
+            var courseData = result?.Data.GetProperty("getCourseById");
+
+            if (courseData.HasValue)
+            {
+                course = new CourseModel
+                {
+                    Id = courseData.Value.GetProperty("id").GetString()!,
+                    Title = courseData.Value.GetProperty("title").GetString()!,
+                    Price = courseData.Value.GetProperty("price").GetDecimal(),
+                    DiscountPrice = courseData.Value.GetProperty("discountPrice").GetDecimal(),
+                    Hours = courseData.Value.GetProperty("hours").GetDecimal(),
+                    IsBestseller = courseData.Value.GetProperty("isBestseller").GetBoolean(),
+                    LikesInNumbers = courseData.Value.GetProperty("likesInNumbers").GetDecimal(),
+                    LikesInProcent = courseData.Value.GetProperty("likesInProcent").GetDecimal(),
+                    Author = courseData.Value.GetProperty("author").GetString(),
+                    ImageName = courseData.Value.GetProperty("imageName").GetString(),
+                    Category = new CourseModel.CategoryModel
+                    {
+                        Id = courseData.Value.GetProperty("category").GetProperty("id").GetString()!,
+                        CategoryName = courseData.Value.GetProperty("category").GetProperty("categoryName").GetString()!
+                    }
+                };
+            }
         }
     }
 
     public class CourseModel
     {
-        public int Id { get; set; }
+        public string Id { get; set; } = null!;
         public string Title { get; set; } = null!;
         public decimal Price { get; set; }
         public decimal DiscountPrice { get; set; }
-        public int Hours { get; set; }
+        public decimal Hours { get; set; }
         public bool IsBestseller { get; set; }
         public decimal LikesInNumbers { get; set; }
         public decimal LikesInProcent { get; set; }
         public string? Author { get; set; }
         public string? ImageName { get; set; }
-        public string Category { get; set; } = null!;
+
+        public string? CategoryId { get; set; }
+        public virtual CategoryModel? Category { get; set; }
+
+        public class CategoryModel
+        {
+            public string Id { get; set; } = null!;
+            public string CategoryName { get; set; } = null!;
+        }
+    }
+
+    public class GraphQLQuery
+    {
+        public string query { get; set; } = null!;
+    }
+
+    public class DynamicGraphQLResponse
+    {
+        [JsonPropertyName("data")]
+        public JsonElement Data { get; set; }
     }
 }
