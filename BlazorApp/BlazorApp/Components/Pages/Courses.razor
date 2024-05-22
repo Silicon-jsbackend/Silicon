@@ -76,7 +76,7 @@
                 @foreach (var course in courses)
                 {
                     @* <NavLink asp-action="Details" asp-controller="Courses" asp-route-id="@course.Id"> *@
-                    <NavLink href="@($"course/{course.Id}")">
+                    <a href="@($"course/{course.Id}")">
 
                         <div class="course-card">
                             <div class="course-card_img">
@@ -130,7 +130,7 @@
                                 </div>
                             </div>
                         </div>
-                    </NavLink>
+                    </a>
 
                 }
 

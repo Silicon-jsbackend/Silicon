@@ -4,6 +4,7 @@ using BlazorApp.Data;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using static BlazorApp.Components.Pages.CoursesDetails;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -40,6 +41,11 @@ builder.Services.AddIdentityCore<ApplicationUser>(options => options.SignIn.Requ
 //{
 //    options.ConstraintMap["string"] = typeof(string);
 //});
+
+builder.Services.Configure<RouteOptions>(options =>
+{
+    options.ConstraintMap.Add("string", typeof(StringRouteConstraint));
+});
 
 
 
