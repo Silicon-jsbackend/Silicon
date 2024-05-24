@@ -19,49 +19,26 @@
         </div>
 
         <div class="bord">
-        <div class="header">
-        <h1 class="my5">Courses</h1>
+            <div class="header">
+                <h1 class="my5">Courses</h1>
+            </div>
+
+            <form class="filters">
+                <div class="select">
+
+                <div class="input-search-group">
+                    <input id="searchQuery" name="searchQuery" placeholder="Search courses">
+                    <i class="fa-regular fa-search"></i>
+                </div>
+
+                <div class="selected">All categories</div>
+                    <div class="select-options">
+                        <div class="option" data-value="all">All categories</div>
+                        </div>
+                    </div>
+            </form>
         </div>
 
-        <form class="filters">
-        <div class="select">
-
-        <div class="input-search-group">
-        <input id="searchQuery" name="searchQuery" placeholder="Search courses">
-        <i class="fa-regular fa-search"></i>
-        </div>
-
-        <div class="selected">All categories</div>
-        <div class="select-options">
-        <div class="option" data-value="all">All categories</div>
-@*         @if (Model.Categories != null)
-        {
-        foreach (var category in Model.Categories)
-        {
-        <div class="option" data-value="@category.CategoryName">@category.CategoryName</div>
-        }
-        } *@
-        </div>
-        </div>
-        </form>
-
-        </div>
-
-@*  <span class="information">
-
-        @if (ViewData["Status"]?.ToString() == "ConnectionFailed")
-        {
-        <span class="alert alert-danger">
-        Unable to contact the server. Please try again later.
-        </span>
-        }
-        else if (ViewData["Status"]?.ToString() == "Unauthorized")
-        {
-        <span class="alert alert-danger">
-        An error occurred. Please contact web admin.
-        </span>
-        }
-        </span> *@
 
         @if (courses == null)
         {
@@ -75,7 +52,6 @@
 
                 @foreach (var course in courses)
                 {
-                    @* <NavLink asp-action="Details" asp-controller="Courses" asp-route-id="@course.Id"> *@
                     <a href="@($"course/{course.Id}")">
 
                         <div class="course-card">
@@ -87,13 +63,14 @@
                                         <p>Bestseller</p>
                                     </div>
                                 }
-                                <form asp-controller="Account" asp-action="SavedCourses" method="post" style="display: inline;">
-                                    <input type="hidden" name="courseId" value="@course.Id" />
+                                <EditForm Model="@course" OnValidSubmit="@SaveCourse">
+                                    <InputHidden id="courseId" />
+
                                     <button type="submit" class="bookmark" style="border: none; background: none; padding: 0; cursor: pointer;">
                                         <img class="bookmark" src="images/courses/bookmark.svg" alt="bookmark" style="display: block;">
-
                                     </button>
-                                </form>
+                                </EditForm>
+
                             </div>
                             <div class="course-card_body">
                                 <h2 class="h5 multi-line-title">@course.Title</h2>
@@ -180,6 +157,7 @@
 
 @code {
     private List<CourseModel>? courses;
+    private CourseModel course = new CourseModel();
 
     protected override async Task OnInitializedAsync()
     {
@@ -248,5 +226,10 @@
     {
         [JsonPropertyName("data")]
         public JsonElement Data { get; set; }
+    }
+
+    private async Task SaveCourse()
+    {
+
     }
 }

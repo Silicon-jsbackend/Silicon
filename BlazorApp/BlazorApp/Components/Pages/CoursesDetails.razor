@@ -258,7 +258,29 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        var query = new GraphQLQuery { query = $"{{ getCourseById(id: {Id}) {{ id title price discountPrice hours isBestseller likesInNumbers likesInProcent author imageName category {{ id categoryName }} }} }}" };
+        var query = new GraphQLQuery
+            {
+                query = $@"{{
+        getCourseById(id: ""{Id}"") {{
+            id
+            title
+            price
+            discountPrice
+            hours
+            isBestseller
+            likesInNumbers
+            likesInProcent
+            author
+            imageName
+            categoryId
+            category {{
+                id
+                categoryName
+            }}
+        }}
+    }}"
+            };
+
         var response = await Http.PostAsJsonAsync("https://courseprovider-silicon-et.azurewebsites.net/api/graphql?code=HwR4hOUedeBAkP2RuBebzjkPFIezqH_ZfFQZ85Vbr9pLAzFuGFDHGg%3D%3D", query);
 
         if (response.IsSuccessStatusCode)

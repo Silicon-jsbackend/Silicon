@@ -212,55 +212,6 @@
     }
 
 
-
-    // private async Task LoadUserData()
-    // {
-    //     try
-    //     {
-    //         // Hämta aktuell autentiserad användare
-    //         var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
-    //         var user = authState.User;
-
-    //         if (user.Identity?.IsAuthenticated == true)
-    //         {
-    //             // Hämta användarinformation från databasen om användaren är autentiserad
-    //             var currentUser = await UserManager.GetUserAsync(user);
-    //             if (currentUser != null)
-    //             {
-    //                 // Kontrollera om användarens profil finns
-    //                 if (currentUser.UserProfile == null)
-    //                 {
-    //                     // Om profilen inte finns, skapa en ny profil
-    //                     currentUser.UserProfile = new UserProfile();
-    //                 }
-
-    //                 // Fyll i formuläret med användarens information från databasen
-    //                 BasicInfoForm.FirstName = currentUser.UserProfile.FirstName;
-    //                 BasicInfoForm.LastName = currentUser.UserProfile.LastName;
-    //                 BasicInfoForm.Email = currentUser.Email;
-    //                 BasicInfoForm.PhoneNumber = currentUser.PhoneNumber;
-    //                 BasicInfoForm.Biography = currentUser.UserProfile.Biography;
-    //             }
-    //             else
-    //             {
-    //                 StatusMessage = "Unable to load user.";
-    //             }
-    //         }
-    //         else
-    //         {
-    //             StatusMessage = "User is not authenticated.";
-    //         }
-    //     }
-    //     catch (Exception ex)
-    //     {
-    //         StatusMessage = "An error occurred while loading user data.";
-    //         // Logga eventuella fel
-    //     }
-    // }
-
-
-
-
     public async Task OnValidSubmit(EditContext editContext)
     {
         try
