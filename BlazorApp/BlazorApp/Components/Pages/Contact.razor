@@ -1,0 +1,220 @@
+﻿@page "/contact"
+@using System.Net.Http
+@using System.Net.Http.Json
+@using System.Text.Json
+@using System.Text
+
+<section class="contact">
+    <div class="container">
+        <div class="home-contact">
+            <a class="home-and-contact">
+                <i class="fa-light fa-house"></i>
+                <p class="home">Home</p>
+            </a>
+
+            <i class="fa-light fa-angles-right"></i>
+            <p class="contact">Contact</p>
+        </div>
+
+        <div class="contact-info">
+            <h1>Contact Us</h1>
+
+            <div class="email-us">
+                <div class="email-icone">
+                    <div class="round">
+                        <i class="fa-regular fa-envelope"></i>
+                    </div>
+                </div>
+
+                <div class="email-text">
+                    <h4>Email Us</h4>
+                    <p>Please feel free to drop us a line. We will respond as soon as possible.</p>
+                    <a href="#">Leave a message <i class="fa-regular fa-arrow-right"></i></a>
+                </div>
+            </div>
+
+            <div class="careers">
+                <div class="careers-icone">
+                    <div class="round">
+                        <i class="fa-thin fa-users-medical"></i>
+                    </div>
+                </div>
+
+                <div class="careers-text">
+                    <h4>Careers</h4>
+                    <p>Sit ac ipsum leo lorem magna nunc mattis maecenas non vestibulum.</p>
+                    <a href="#">Send an application <i class="fa-regular fa-arrow-right"></i></a>
+                </div>
+            </div>
+
+            <div class="get-in-contact">
+
+                <h2>Get In Contact With Us</h2>
+               @*  @{
+                    var statusCode = TempData["StatusCode"];
+                    var statusMessage = TempData["Status"];
+                }
+
+                @if (statusMessage?.ToString() == "Success")
+                {
+                    <span class="alert alert-success">
+                        Contact added successfully!
+                    </span>
+                }
+                else if (statusMessage?.ToString() == "Unauthorized")
+                {
+                    <span class="alert alert-danger">
+                        (Status Code: @statusCode). Please contact the administrator.
+                    </span>
+                }
+                else if (statusMessage?.ToString() == "Error")
+                {
+                    <span class="alert alert-danger">
+                        Error: (Status Code: @statusCode). Try again later.
+                    </span>
+                }
+                else if (statusMessage?.ToString() == "ConnectionFailed")
+                {
+                    <span class="alert alert-danger">
+                        Serverproblem (Status Code: @statusCode). Please try again later.
+                    </span>
+                }
+                else if (statusMessage?.ToString() == "InvalidInput")
+                {
+                    <span class="alert alert-danger">
+                        Invalid input. Please check the form and try again.
+                    </span>
+                } *@
+
+                <div class="contact-form">
+                    <form method="post" asp-controller="Contact" asp-action="Index" novalidate>
+                        <div class="form-group">
+
+                            <div id="contact-fullname" class="input-group">
+                                <label asp-for="Form.FullName">Full Name</label>
+                                <span asp-validation-for="Form.FullName"> </span>
+                                <input asp-for="Form.FullName" />
+                            </div>
+
+                            <div id="contact-email" class="input-group">
+                                <label asp-for="Form.Email"></label>
+                                <span asp-validation-for="Form.Email"> </span>
+                                <input asp-for="Form.Email" />
+                            </div>
+
+                            <div class="lable">
+                                <label for="service">Service (optional)</label>
+                                <i class="fa-solid fa-angle-down"></i>
+                            </div>
+
+                            <select class="form-control" id="service" name="Form.SelectedService">
+
+                                <option value="default">Choose the service you are interested in</option>
+                                <option value="web-development">Web Development</option>
+                                <option value="app-development">App Development</option>
+                                <option value="design">Design</option>
+                                <option value="other">Other</option>
+                            </select>
+
+                            <div id="contact-message" class="input-group">
+                                <label asp-for="Form.Message">Message</label>
+                                <span asp-validation-for="Form.Message"></span>
+                                <textarea asp-for="Form.Message" class="form-control" rows="5" placeholder="Enter your message"></textarea>
+                            </div>
+
+
+
+                            <button type="submit" class="btn-theme">Send Contact Request</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="map">
+        <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3154.647577291772!2d-122.40395378427882!3d37.73271222976797!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x808f7e035433c3cf%3A0x14687cb1c0e11947!2sSilver%20Terrace%2C%20San%20Francisco%2C%20CA%2C%20USA!5e0!3m2!1sen!2sua!4v1695733588761!5m2!1sen!2sua"
+                width="100%"
+                height="870"
+                style="border:0;"
+                allowFullScreen=""
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                title="Google Maps"></iframe>
+    </div>
+</section>
+
+@code {
+    private ContactViewModel viewModel = new ContactViewModel();
+    private string StatusMessage { get; set; }
+    private string AlertClass { get; set; }
+
+    private async Task HandleValidSubmit()
+    {
+        // try
+        // {
+        //     var apiKey = "5e29b885-1414-4046-bb3c-33ac9c611b01";
+        //     var url = "https://localhost:7026/api/contact?key=" + apiKey;
+
+        //     var json = JsonSerializer.Serialize(viewModel.Form);
+        //     var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+        //     using var http = new HttpClient();
+        //     var response = await http.PostAsync(url, content);
+
+        //     if (response.IsSuccessStatusCode)
+        //     {
+        //         StatusMessage = "Contact added successfully!";
+        //         AlertClass = "alert-success";
+        //     }
+        //     else if (response.StatusCode == Unauthorized)
+        //     {
+        //         StatusMessage = $"(Status Code: {(int)response.StatusCode}). Please contact the administrator.";
+        //         AlertClass = "alert-danger";
+        //     }
+        //     else
+        //     {
+        //         StatusMessage = $"Error: (Status Code: {(int)response.StatusCode}). Try again later.";
+        //         AlertClass = "alert-danger";
+        //     }
+        // }
+        // catch (HttpRequestException)
+        // {
+        //     StatusMessage = "Server problem. Please try again later.";
+        //     AlertClass = "alert-danger";
+        // }
+    }
+
+    public class ContactViewModel
+    {
+        public string Title { get; set; } = "Contact Us";
+        public ContactModel Form { get; set; } = new ContactModel();
+    }
+
+    public class ContactModel
+    {
+        [DataType(DataType.Text)]
+        [Display(Name = "Full Name", Prompt = "Enter your full name", Order = 0)]
+        [Required(ErrorMessage = "Full name is required")]
+        [MinLength(2, ErrorMessage = "Full name must be at least 2 characters long")]
+        public string FullName { get; set; } = null!;
+
+        [DataType(DataType.EmailAddress)]
+        [Display(Name = "Email", Prompt = "Enter your email address", Order = 1)]
+        [Required(ErrorMessage = "Email is required")]
+        [RegularExpression(@"^(?=.*[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,})[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$",
+                              ErrorMessage = "The email format is not valid.")]
+        public string Email { get; set; } = null!;
+
+        [Display(Name = "Service (optional)", Prompt = "Choose the service you are interested in", Order = 2)]
+        public string? SelectedService { get; set; }
+
+        [Display(Name = "Message", Prompt = "Enter your message here", Order = 3)]
+        [Required(ErrorMessage = "Message is required")]
+        [MinLength(2, ErrorMessage = "Message must be at least 2 characters long")]
+        public string Message { get; set; } = null!;
+    }
+
+
+}
