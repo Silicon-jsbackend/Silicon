@@ -125,11 +125,11 @@
 
             typingTimer?.Stop();
             typingTimer = new System.Timers.Timer(2000);
-            typingTimer.Elapsed += (s, e) =>
+            typingTimer.Elapsed += async (s, e) =>
             {
                 typingUser = null;
                 typingTimer.Stop();
-                InvokeAsync(StateHasChanged);
+                await InvokeAsync(StateHasChanged);
             };
             typingTimer.Start();
         });

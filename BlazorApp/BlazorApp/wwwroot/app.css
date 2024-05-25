@@ -4214,7 +4214,7 @@ background-position: 5px center;*/
   height: 0;
 }
 #account-details .notifications .check .btn-switch .switch input:checked + .slider {
-  background-color: green;
+  background-color: #22C55E;
 }
 #account-details .notifications .check .btn-switch .switch input:focus + .slider {
   box-shadow: 0 0 1px #6366F1;
@@ -4313,6 +4313,8 @@ background-position: 5px center;*/
 .chat .container .card .card-footer .input-group {
   display: flex;
   align-items: center;
+  gap: 10px;
+  flex-direction: column;
 }
 .chat .container .card .card-footer .input-group textarea {
   flex: 1;
@@ -4320,6 +4322,7 @@ background-position: 5px center;*/
   border: 1px solid #ddd;
   padding: 10px;
   font-size: 1rem;
+  width: 100%;
 }
 .chat .container .card .card-footer .input-group .input-group-append {
   margin-left: 10px;
