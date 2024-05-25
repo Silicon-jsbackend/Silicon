@@ -60,6 +60,8 @@
                 .input-group {
                     display: flex;
                     align-items: center;
+                    gap: 10px;
+                    flex-direction: column;
 
                     textarea {
                         flex: 1;
@@ -67,6 +69,7 @@
                         border: 1px solid #ddd;
                         padding: 10px;
                         font-size: 1rem;
+                        width: 100%;
                     }
 
                     .input-group-append {

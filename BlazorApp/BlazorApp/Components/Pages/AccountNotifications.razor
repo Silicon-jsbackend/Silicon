@@ -26,7 +26,7 @@
                 <NavLink class="btn-transparent" href="/account/details"><i class="fa-light fa-gear"></i>Account Details</NavLink>
                 <NavLink class="btn-transparent" href="/account/security"><i class="fa-sharp fa-regular fa-lock"></i>Security</NavLink>
                 <NavLink class="btn-theme-s" href="/account/notifications"><i class="fa-light fa-bell"></i>Notifications</NavLink>
-                <NavLink class="btn-transparent" href="/account/messages"><i class="fa-light fa-comments"></i>Messages</NavLink>
+                <NavLink class="btn-transparent" href="/chat"><i class="fa-light fa-comments"></i>Messages</NavLink>
                 <NavLink class="btn-transparent" href="/account/savedcourses"><i class="fa-light fa-bookmark"></i>Saved Items</NavLink>
                 <NavLink class="btn-transparent" href="/signout"><i class="fa-light fa-arrow-right-from-bracket"></i>Sign Out</NavLink>
             </nav>
@@ -46,7 +46,7 @@
 
                     <div id="form-email" class="input-group">
                         <label for="email">Preferred email for notifications</label>
-                        <InputText @bind-Value="NotificationsForm.Email" placeholder="example@gmail.com" />
+                        <InputText @bind-Value="NotificationsForm.Email" placeholder="example@gmail.com" class="mb-3" />
                     </div>
 
                     <div class="check">
